@@ -2,6 +2,7 @@ FROM debian:13.6-slim
 
 ARG CODEX_INSTALL_URL=https://chatgpt.com/codex/install.sh
 ARG ACTIONLINT_VERSION=1.7.12
+ARG AWSCLI_VERSION=2.37.12
 ARG TARGETARCH
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -13,22 +14,23 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
-        awscli \
         bubblewrap \
         curl \
         git \
         gh \
         gpg \
         gosu \
+        groff-base \
+        less \
         micro \
         openssh-client \
         procps \
         tmux \
+        unzip \
         zsh \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 1000 codex \
-    && useradd --uid 1000 --gid codex --create-home --shell /usr/bin/zsh codex \
-    && aws --version
+    && useradd --uid 1000 --gid codex --create-home --shell /usr/bin/zsh codex
 
 # Install the official Actionlint release for the image architecture.
 RUN case "$TARGETARCH" in \
@@ -45,6 +47,21 @@ RUN case "$TARGETARCH" in \
     && rm -f /tmp/actionlint.tar.gz /tmp/actionlint \
     && actionlint -version
 
+# Install the pinned official AWS CLI v2 release for the image architecture.
+RUN case "$TARGETARCH" in \
+        amd64) awscli_arch=x86_64 ;; \
+        arm64) awscli_arch=aarch64 ;; \
+        *) echo "Unsupported AWS CLI architecture: $TARGETARCH" >&2; exit 1 ;; \
+    esac \
+    && curl --fail --silent --show-error --location \
+        "https://awscli.amazonaws.com/awscli-exe-linux-${awscli_arch}-${AWSCLI_VERSION}.zip" \
+        -o /tmp/awscliv2.zip \
+    && unzip -q /tmp/awscliv2.zip -d /tmp \
+    && /tmp/aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli \
+    && rm -rf /tmp/aws /tmp/awscliv2.zip \
+    && aws --version \
+    && aws login help >/dev/null
+
 # Install Terraform from HashiCorp's signed Debian repository.
 RUN curl --fail --silent --show-error --location https://apt.releases.hashicorp.com/gpg \
         | gpg --dearmor --output /usr/share/keyrings/hashicorp-archive-keyring.gpg \
@@ -59,6 +76,9 @@ RUN curl --fail --silent --show-error --location https://apt.releases.hashicorp.
 # Install uv for project dependency management and test commands.
 USER codex
 WORKDIR /home/codex
+RUN aws configure set region eu-west-1 \
+    && test "$(aws configure get region)" = eu-west-1
+
 RUN curl --fail --silent --show-error --location https://astral.sh/uv/install.sh -o /tmp/uv-install.sh \
     && sh /tmp/uv-install.sh --no-modify-path \
     && rm /tmp/uv-install.sh \

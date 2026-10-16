@@ -9,7 +9,8 @@ away from the Mac.
 - Debian 13.6 (Trixie) slim, for Apple Silicon and Intel Macs
 - Standalone Codex CLI and its managed remote-control app server
 - GitHub CLI (`gh`), Git, SSH client, `zsh`, and `tmux`
-- AWS CLI, Terraform, Python 3.14, Checkov, and Actionlint
+- AWS CLI v2.37.12 (default region: `eu-west-1`), Terraform, Python 3.14,
+  Checkov, and Actionlint
 - Docker-managed persistent volumes for repositories, Codex, and GitHub state
 - The local `~/.codex/skills` collection embedded into the image at build time
 
