@@ -13,6 +13,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
+        awscli \
         bubblewrap \
         curl \
         git \
@@ -26,7 +27,8 @@ RUN apt-get update \
         zsh \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 1000 codex \
-    && useradd --uid 1000 --gid codex --create-home --shell /usr/bin/zsh codex
+    && useradd --uid 1000 --gid codex --create-home --shell /usr/bin/zsh codex \
+    && aws --version
 
 # Install the official Actionlint release for the image architecture.
 RUN case "$TARGETARCH" in \
