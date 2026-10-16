@@ -10,7 +10,9 @@ down:
 	docker compose down
 
 shell:
-	docker compose exec --user codex --workdir /workspace codex-workstation zsh
+	@printf '\033]11;#000080\033\\'; \
+		trap 'printf "\033]111\033\\"' EXIT; \
+		docker compose exec --user codex --workdir /workspace codex-workstation zsh
 
 logs:
 	docker compose logs --follow codex-workstation

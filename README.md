@@ -36,6 +36,9 @@ container.
    make shell
    ```
 
+   This temporarily sets the Ghostty terminal background to navy blue and
+   restores the configured background when the container shell closes.
+
 4. Clone and work on repositories under `/workspace`.
 
    ```sh
