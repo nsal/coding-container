@@ -10,7 +10,7 @@ down:
 	docker compose down
 
 shell:
-	@printf '\033]11;#000080\033\\'; \
+	@printf '\033]11;#000033\033\\'; \
 		trap 'printf "\033]111\033\\"' EXIT; \
 		docker compose exec --user codex --workdir /workspace codex-workstation zsh
 
